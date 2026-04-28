@@ -2,52 +2,46 @@ package com.narxoz.rpg.state;
 
 import com.narxoz.rpg.combatant.Hero;
 
-/**
- * A buff state where the hero regenerates health each turn.
- * - Healing triggers at turn start
- * - No damage modifiers (hero maintains normal offense/defense)
- * - Lasts for 4 turns, then transitions to normal
- * This demonstrates a positive state with passive healing effects.
- */
 public class RegenerationState implements HeroState {
 
     private int turnsRemaining;
-    private static final int REGEN_DURATION = 4;
-    private static final int HEALING_PER_TURN = 5;
+    private final int healAmount;
 
-    public RegenerationState() {
-        this.turnsRemaining = REGEN_DURATION;
+    public RegenerationState(int duration, int healAmount) {
+        this.turnsRemaining = duration;
+        this.healAmount = healAmount;
     }
 
     @Override
     public String getName() {
-        return "Regenerating";
+        return "Regeneration";
     }
 
     @Override
     public int modifyOutgoingDamage(int basePower) {
-        // Regeneration doesn't affect offense
         return basePower;
     }
 
     @Override
     public int modifyIncomingDamage(int rawDamage) {
-        // Regeneration doesn't affect defense
-        return rawDamage;
+        return (int) (rawDamage * 0.9);
     }
 
     @Override
     public void onTurnStart(Hero hero) {
-        System.out.println("  [" + hero.getName() + " heals " + HEALING_PER_TURN + " HP]");
-        hero.heal(HEALING_PER_TURN);
+        int before = hero.getHp();
+        hero.heal(healAmount);
+        System.out.println(hero.getName() + " regenerates " + (hero.getHp() - before) + " HP! (HP: " + before + " -> " + hero.getHp() + ")");
     }
 
     @Override
     public void onTurnEnd(Hero hero) {
         turnsRemaining--;
         if (turnsRemaining <= 0) {
-            System.out.println("  [" + hero.getName() + "'s regeneration ends.]");
+            System.out.println(hero.getName() + "'s regeneration fades.");
             hero.setState(new NormalState());
+        } else {
+            System.out.println(hero.getName() + " continues regenerating for " + turnsRemaining + " more turn(s).");
         }
     }
 

@@ -2,21 +2,7 @@ package com.narxoz.rpg.state;
 
 import com.narxoz.rpg.combatant.Hero;
 
-/**
- * A buff state where the hero enters a berserk rage.
- * - Increases outgoing damage by 50%
- * - Increases incoming damage by 20% (less defense while raging)
- * - Self-transitions to normal after 2 turns
- * This demonstrates a powerful buff/debuff with both positive and negative modifiers.
- */
 public class BerserkState implements HeroState {
-
-    private int turnsRemaining;
-    private static final int BERSERK_DURATION = 2;
-
-    public BerserkState() {
-        this.turnsRemaining = BERSERK_DURATION;
-    }
 
     @Override
     public String getName() {
@@ -25,27 +11,27 @@ public class BerserkState implements HeroState {
 
     @Override
     public int modifyOutgoingDamage(int basePower) {
-        // Berserking increases attack power dramatically
         return (int) (basePower * 1.5);
     }
 
     @Override
     public int modifyIncomingDamage(int rawDamage) {
-        // But berserk heroes are less defensive
-        return (int) (rawDamage * 1.2);
+        return (int) (rawDamage * 1.3);
     }
 
     @Override
     public void onTurnStart(Hero hero) {
-        System.out.println("  [" + hero.getName() + " rages with berserk fury!]");
+        System.out.println(hero.getName() + " is in a berserker rage! (+50% attack, +30% damage taken)");
     }
 
     @Override
     public void onTurnEnd(Hero hero) {
-        turnsRemaining--;
-        if (turnsRemaining <= 0) {
-            System.out.println("  [" + hero.getName() + "'s berserk rage subsides.]");
+        double hpPercent = (double) hero.getHp() / hero.getMaxHp();
+        if (hpPercent > 0.5) {
+            System.out.println(hero.getName() + " calms down as HP is above 50%.");
             hero.setState(new NormalState());
+        } else {
+            System.out.println(hero.getName() + " remains berserk (HP at " + (int) (hpPercent * 100) + "%).");
         }
     }
 
