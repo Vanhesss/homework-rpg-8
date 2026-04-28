@@ -1,3 +1,4 @@
 out/
 *.class
 TASK.md
+.claude/
